@@ -75,6 +75,7 @@ return    : 消去后增加的得分
 def erase(mat):
     cnt3, cnt4, cnt5 = 0, 0, 0
     # 计算3，4，5的连续块个数
+    ## idea: if mat duplicate and mat == typical colors then we will add a combo reward
     for i in range(m):
         for j in range(n):
             if i + 2 < m and mat[i][j] != 0:
@@ -83,7 +84,7 @@ def erase(mat):
                     mat[i][j] = -iabs(mat[i][j])
                     mat[i + 1][j] = -iabs(mat[i][j])
                     mat[i + 2][j] = -iabs(mat[i][j])
-                    cnt3 += 1
+                    cnt3 += 1  ## we can add the combo reward here
             if j + 2 < n and mat[i][j] != 0:
                 if (iabs(mat[i][j]) == iabs(mat[i][j + 1]) and
                         iabs(mat[i][j + 1]) == iabs(mat[i][j + 2])):
@@ -152,7 +153,7 @@ def erase(mat):
     cnt3 -= (3 * cnt5 + 2 * cnt4)
     if cnt3 + cnt4 * 4 + cnt5 * 10 == 0:
         return 0
-    return cnt3 + cnt4 * 4 + cnt5 * 10 + erase(mat) ## why 4 and 10?
+    return cnt3 + cnt4 * 4 + cnt5 * 10 + erase(mat) ## why 4 and 10? seems arbitrary 
 
 
 '''
@@ -173,6 +174,7 @@ def dfs_tpk(mat, step, sum, tpk):
     for i in range(m): ## m is how depth is the rectrangle
         for j in range(n):
             if i + 1 < m and mat[i][j] > 0 and mat[i + 1][j] > 0:
+                # print(mat[i][j])
                 a = copy.deepcopy(mat)
                 a[i][j], a[i + 1][j] = a[i + 1][j], a[i][j] ## why?
                 res = erase(a)
@@ -207,11 +209,11 @@ def dfs_tpk(mat, step, sum, tpk):
         artists.append(getRectangle(getCir(a), y1 * 10 + 40, 80 - x1 * 10, y2 * 10 + 40, 80 - x2 * 10, 'blue'))
         # 消除方块，递归
         res = erase(a)
-        
+        ## the res score is used to decide how to erase
         dfs_tpk(a, step - 1, sum + res, tpk)
-        print('score',sum+res) ## what is the meaning of score?
+        # print('score',sum+res) ## what is the meaning of score?
         # print('juzhen',a)
-        print('step', step-1)
+        # print('step', step-1)
         # 回溯打印
         artists.append(getCir(a))
 
