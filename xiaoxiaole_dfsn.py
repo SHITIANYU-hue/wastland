@@ -72,12 +72,18 @@ return    : 消去后增加的得分
 '''
 
 
-def erase(mat):
+def erase(mat,color):
     cnt3, cnt4, cnt5 = 0, 0, 0
     # 计算3，4，5的连续块个数
     ## idea: if mat duplicate and mat == typical colors then we will add a combo reward
-    for i in range(m):
-        for j in range(n):
+    color_b=0
+    botom_b=0
+    for i in range(m): ## hang 
+        for j in range(n): ## lie 
+            botom_b= 1*i
+            if mat[i][j]==color:
+                print('bonus color',mat[i][j])
+                color_b+=1
             if i + 2 < m and mat[i][j] != 0:
                 if (iabs(mat[i][j]) == iabs(mat[i + 1][j]) and
                         iabs(mat[i + 1][j]) == iabs(mat[i + 2][j])):
@@ -153,7 +159,7 @@ def erase(mat):
     cnt3 -= (3 * cnt5 + 2 * cnt4)
     if cnt3 + cnt4 * 4 + cnt5 * 10 == 0:
         return 0
-    return cnt3 + cnt4 * 4 + cnt5 * 10 + erase(mat) ## why 4 and 10? seems arbitrary 
+    return cnt3 + cnt4 * 4 + cnt5 * 10 + botom_b + color_b+erase(mat,color) ## why 4 and 10? seems arbitrary 
 
 
 '''
@@ -166,7 +172,7 @@ return     : ----
 '''
 
 
-def dfs_tpk(mat, step, sum, tpk):
+def dfs_tpk(mat, step, sum, tpk,color):
     if step == 0:
         return
     seq = []
@@ -177,13 +183,13 @@ def dfs_tpk(mat, step, sum, tpk):
                 # print(mat[i][j])
                 a = copy.deepcopy(mat)
                 a[i][j], a[i + 1][j] = a[i + 1][j], a[i][j] ## why?
-                res = erase(a)
+                res = erase(a,color)
                 if res > 0:
                     seq.append([res, i, j, i + 1, j])
             if j + 1 < n and mat[i][j] > 0 and mat[i][j + 1] > 0:
                 a = copy.deepcopy(mat)
                 a[i][j], a[i][j + 1] = a[i][j + 1], a[i][j]
-                res = erase(a)
+                res = erase(a,color)
                 if res > 0:
                     seq.append([res, i, j, i, j + 1])
     # print('seq',seq)
@@ -208,9 +214,9 @@ def dfs_tpk(mat, step, sum, tpk):
         a[seq[i][1]][seq[i][2]], a[seq[i][3]][seq[i][4]] = a[seq[i][3]][seq[i][4]], a[seq[i][1]][seq[i][2]]
         artists.append(getRectangle(getCir(a), y1 * 10 + 40, 80 - x1 * 10, y2 * 10 + 40, 80 - x2 * 10, 'blue'))
         # 消除方块，递归
-        res = erase(a)
+        res = erase(a,color)
         ## the res score is used to decide how to erase
-        dfs_tpk(a, step - 1, sum + res, tpk)
+        dfs_tpk(a, step - 1, sum + res, tpk,color)
         # print('score',sum+res) ## what is the meaning of score?
         # print('juzhen',a)
         # print('step', step-1)
@@ -232,13 +238,13 @@ if __name__ == '__main__':
             print(mat[i][j], end='')
         print()
     '''
-
+    color=2
     fig = plt.figure()
     plt.xlim(-10, 140)
     plt.ylim(-10, 100)
 
-    dfs_tpk(mat, 8, 0, 3) ## if it is very deep the program will stuck
+    dfs_tpk(mat, 8, 0, 3,color) ## if it is very deep the program will stuck
 
     ain = animation.ArtistAnimation(fig=fig, artists=artists, interval=1000)
     plt.show()
-    ain.save('demo.gif', fps=2)
+    ain.save(f'demo{color}.gif', fps=2)
